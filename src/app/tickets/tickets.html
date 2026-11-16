@@ -1,0 +1,229 @@
+
+<div class="tickets-page">
+
+  <!-- Ticket Form (Create / Edit) -->
+<div class="form-card" *ngIf="formVisible">
+  <h3>{{ isEditMode ? 'Edit Ticket' : 'Create New Ticket' }}</h3>
+  <form [formGroup]="ticketForm" (ngSubmit)="submitForm()">
+    <div class="form-group">
+      <label for="subject">Subject</label>
+      <input id="subject" type="text" formControlName="subject" />
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" rows="4" formControlName="description"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="category_id">Category</label>
+      <select id="category_id" formControlName="category_id">
+        <option [value]="null" disabled>Select category</option>
+        <!-- Assuming categories are static IDs – you can replace with a dynamic list -->
+        <option *ngFor="let c of [1,2,3]" [value]="c">Category {{c}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="priority">Priority</label>
+      <select id="priority" formControlName="priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="urgent">Urgent</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="create-btn" [disabled]="isSubmitting">{{ isEditMode ? 'Update' : 'Create' }}</button>
+      <button type="button" class="delete-btn" (click)="formVisible = false; errorMessage = ''">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<!-- Existing Ticket Table -->
+  <div class="page-header">
+
+    <div>
+      <h2>All Tickets</h2>
+      <p>Manage and monitor all support tickets.</p>
+    </div>
+
+    <div class="ticket-count">
+      {{ tickets.length }} Total Tickets
+    </div>
+
+  </div>
+<div class="header-actions" style="margin-top:10px;">
+  <button type="button" class="create-btn" (click)="openCreateForm()">Create New Ticket</button>
+</div>
+
+
+  <!-- Loading State -->
+  <div class="empty-state" *ngIf="isLoading">
+    Loading tickets...
+  </div>
+
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+
+  <!-- Tickets Table -->
+  <div class="table-card" *ngIf="!isLoading && !errorMessage">
+
+    <table *ngIf="tickets.length > 0">
+
+      <thead>
+        <tr>
+          <th>Ticket ID</th>
+          <th>Subject</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let ticket of tickets">
+
+          <td class="ticket-id">
+            #{{ ticket.id }}
+          </td>
+
+          <td class="subject">
+            {{ ticket.subject }}
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="'priority-' + ticket.priority">
+              {{ ticket.priority }}
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="'status-' + ticket.status">
+              {{ (ticket.status || '').replace('_', ' ') }}
+            </span>
+          </td>
+
+          <td>
+            <button
+              type="button"
+              class="view-btn"
+              (click)="viewTicket(ticket.id)">
+              View Details
+            </button>
+            <button
+              type="button"
+              class="edit-btn"
+              (click)="openEditForm(ticket)">
+              Edit
+            </button>
+            <button
+              type="button"
+              class="delete-btn"
+              (click)="deleteTicket(ticket.id)">
+              Delete
+            </button>
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="tickets.length === 0">
+      No tickets found.
+    </div>
+
+  </div>
+
+
+  <!-- Selected Ticket Details -->
+  
+<!-- Selected Ticket Details -->
+<div class="details-card" *ngIf="selectedTicket">
+
+  <div class="details-header">
+
+    <div>
+      <h3>Ticket Details</h3>
+      <span class="ticket-id">
+        Ticket #{{ selectedTicket.id }}
+      </span>
+    </div>
+
+    <button
+      type="button"
+      class="close-btn"
+      (click)="closeTicket()">
+      ×
+    </button>
+
+  </div>
+
+  <div class="details-content">
+
+    <div class="detail-item">
+      <strong>Subject</strong>
+      <p>{{ selectedTicket.subject }}</p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Description</strong>
+      <p>{{ selectedTicket.description }}</p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Priority</strong>
+      <p>
+        <span class="badge"
+          [ngClass]="'priority-' + selectedTicket.priority">
+          {{ selectedTicket.priority }}
+        </span>
+      </p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Status</strong>
+      <p>
+        <span class="badge"
+          [ngClass]="'status-' + selectedTicket.status">
+          {{ selectedTicket.status }}
+        </span>
+      </p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Customer ID</strong>
+      <p>{{ selectedTicket.user_id }}</p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Category ID</strong>
+      <p>{{ selectedTicket.category_id }}</p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Assigned Agent</strong>
+      <p>{{ selectedTicket.assigned_to || 'Not assigned' }}</p>
+    </div>
+
+    <div class="detail-item">
+      <strong>Created At</strong>
+      <p>{{ selectedTicket.created_at | date:'medium' }}</p>
+    </div>
+
+  </div>
+
+</div>
+
+
+</div>
